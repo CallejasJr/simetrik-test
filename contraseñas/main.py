@@ -94,31 +94,36 @@ def checkPattern(key,pw, allV):
 def main():
     # Se lee el archivo txt con las keylogs con pandas
     df = pd.read_csv('keylog.txt',encoding='utf-8')
-    df['contraseñas'] = df['contraseñas'].astype('str')
+    df['keylogs'] = df['keylogs'].astype('str')
 
-
+    #Se itera sobre cada keylog para poder encontrar la contraseña
     pw = ''
     validations = []
-    for contras in df['contraseñas']:
+    for keylog in df['keylogs']:
         print('------'*5)
         print('pw actual:',pw)
-        print('buscando keylog:',contras)
-        posiciones, notF, pw = checkPattern(contras,pw,validations)
-        lenContras = len(contras)
+        print('buscando keylog:',keylog)
+
+        #Se inicia el proceso de revisión de la contraseña actual con la keylog actual y anteriores
+        posiciones, notF, pw = checkPattern(keylog,pw,validations)
+
+        #Según la respuesta, se agregan los dígitos ausentes o se define la Keylog como exitosa dentro de la contraseña
+        lenKl = len(keylog)
         lenNumNoEncontrados = len(notF)
-        if lenNumNoEncontrados==lenContras:
-            print(contras,'No encontrado en PW')
-            pw += contras
-            validations.append(contras)
+        if lenNumNoEncontrados==lenKl:
+            print(keylog,'No encontrado en PW')
+            pw += keylog
         elif lenNumNoEncontrados>0:
             for digito in notF:
                 print('agregando digito no encontrado',digito)
                 pw+=digito
-            posiciones, notF, pw = checkPattern(contras,pw,validations)
-        elif posiciones == lenContras:
+            posiciones, notF, pw = checkPattern(keylog,pw,validations)
+        elif posiciones == lenKl:
             print('Keylog OK')
-            validations.append(contras)
+        
+        validations.append(keylog)
 
+    #Resultado en la variable pw
     print('------'*5) 
     print('\n\nLa contraseña más corta para todas las secuencias es:',pw)
 
